@@ -17,9 +17,16 @@ for(int i = 1; i <= 4; i++){
     t.Insert(str);
 }
 
-if(t.Contains("-1")){
-    t.Show();
-}
+t.Show();
+
+string str;
+cin >> str;
+t.Erase(str);
+t.Show();
+
+cin >> str;
+auto result = t.getKey(str);
+cout << result.first << "|" << result.second;
 
 return 0;
 }
