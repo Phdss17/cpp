@@ -6,8 +6,7 @@
 #include <utility>
 
 template <typename Key, typename Value>
-class AvlTree
-{
+class AvlTree{
 public:
     AvlTree(){
         _root = nullptr;
@@ -69,9 +68,9 @@ private:
     Node *_root;
     size_t cont;
 
-    Node *_insert(Node *node, Key k){
+    Node* _insert(Node *node, Key k, Value v){
         if (node == nullptr){
-            return new Node(std::make_pair(k, 1), nullptr, nullptr);
+            return new Node(std::make_pair(k, v), nullptr, nullptr);
         }
 
         if (node->pair.first == k){
@@ -80,9 +79,9 @@ private:
         }
 
         if (k < node->pair.first){
-            node->left = _insert(node->left, k);
+            node->left = _insert(node->left, k, v);
         }else if (k > node->pair.first){
-            node->right = _insert(node->right, k);
+            node->right = _insert(node->right, k, v);
         }
         node = _fixupNode(node, k);
         return node;
@@ -101,7 +100,7 @@ private:
         }
     }
 
-    Node *_clear(Node *node){
+    Node* _clear(Node *node){
         if (node != nullptr){
             node->left = _clear(node->left);
             node->right = _clear(node->right);
@@ -110,7 +109,7 @@ private:
         return nullptr;
     }
 
-    Node *_remove(Node *node, Key key){
+    Node* _remove(Node *node, Key key){
         if (node == nullptr)
             return nullptr;
 
