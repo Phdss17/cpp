@@ -9,20 +9,20 @@ int main(){
 //o uso de string permite a manipulação de todos os outros tipos
 //e ainda emprime por ordem de tamanho e alfabetica automaticamente
 //no entanto leva em consideração a captularização das letras
-AvlTree<string> t;
+AvlTree<string, int> t;
 
 for(int i = 1; i <= 4; i++){
     string str;
     cin >> str;
-    t.Insert(str);
+    t.insert(str);
 }
 
-t.Show();
+t.show();
 
 string str;
 cin >> str;
-t.Erase(str);
-t.Show();
+t.erase(str);
+t.show();
 
 cin >> str;
 auto result = t.getKey(str);

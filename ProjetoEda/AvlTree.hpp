@@ -5,7 +5,7 @@
 #include <queue>
 #include <utility>
 
-template <typename T>
+template <typename Key, typename Value>
 class AvlTree
 {
 public:
@@ -17,48 +17,48 @@ public:
         _root = _clear(_root);
     }
 
-    void Insert(T k){
+    void insert(Key k){
         _root = _insert(_root, k);
     }
 
-    std::pair<T, int> getKey(T k){
+    std::pair<Key, Value> getKey(Key k){
         return _get(_root, k);
     }
 
-    void Clear(){
+    void clear(){
         _root = _clear(_root);
     }
 
-    void Erase(T k){
+    void erase(Key k){
         _root = _remove(_root, k);
     }
 
-    bool Contains(T k) const{
+    bool contains(Key k) const{
         return _contains(_root, k);
     }
 
-    bool Empty() const{
+    bool empty() const{
         return _root == nullptr;
     }
 
-    int Size() const{
+    int size() const{
         return _size(_root);
     }
 
-    void Show() const{
-        _Show(_root);
+    void show() const{
+        _show(_root);
         std::cout << std::endl;
     }
 
 private:
     struct Node
     {
-        std::pair<T, int> pair;
+        std::pair<Key, Value> pair;
         Node *left;
         Node *right;
         int height;
 
-        Node(std::pair<T, int> pair, Node *Esquerda = nullptr, Node *Direita = nullptr, int Altura = 1){
+        Node(std::pair<Key, Value> pair, Node *Esquerda = nullptr, Node *Direita = nullptr, int Altura = 1){
             this->pair = pair;
             this->left = Esquerda;
             this->right = Direita;
@@ -69,7 +69,7 @@ private:
     Node *_root;
     size_t cont;
 
-    Node *_insert(Node *node, T k){
+    Node *_insert(Node *node, Key k){
         if (node == nullptr){
             return new Node(std::make_pair(k, 1), nullptr, nullptr);
         }
@@ -88,7 +88,7 @@ private:
         return node;
     }
 
-    std::pair<T, int> _get(Node* node, T k) {
+    std::pair<Key, Value> _get(Node* node, Key k) {
         if (node == nullptr)
             throw std::runtime_error("Key not found");
 
@@ -110,7 +110,7 @@ private:
         return nullptr;
     }
 
-    Node *_remove(Node *node, T key){
+    Node *_remove(Node *node, Key key){
         if (node == nullptr)
             return nullptr;
 
@@ -168,7 +168,7 @@ private:
         return node;
     }
 
-    bool _contains(Node *node, T k) const{
+    bool _contains(Node *node, Key k) const{
         if (node == nullptr)
             return false;
 
@@ -220,7 +220,7 @@ private:
         return _height(node->right) - _height(node->left);
     }
 
-    Node *_fixupNode(Node *node, T k){
+    Node *_fixupNode(Node *node, Key k){
         int bal = _balance(node);
 
         // Caso 1(a)
@@ -247,13 +247,13 @@ private:
         return node;
     }
 
-    void _Show(Node *node) const{
+    void _show(Node *node) const{
         if (node == nullptr)
             return;
 
-        _Show(node->left);
+        _show(node->left);
         std::cout << node->pair.first << "|" << node->pair.second << std::endl;
-        _Show(node->right);
+        _show(node->right);
     }
 };
 

@@ -2,11 +2,13 @@
 #define RB.HPP
 #include "Node.hpp"
 
+template <typename T>
 class Rb{
     public:
 
     private:
-    Node* _root;
+    Node<T>* _root;
+
 
 };
 
