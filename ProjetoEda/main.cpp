@@ -11,22 +11,22 @@ int main(){
 //o uso de string permite a manipulação de todos os outros tipos
 //e ainda emprime por ordem de tamanho e alfabetica automaticamente
 //no entanto leva em consideração a captularização das letras
-AvlTree<string, int> avt;
-Chained_HashTable<string, int> cht(5, 0.75);
-RbTree<string, int> rb;
+// AvlTree<string, int> avt;
+// Chained_HashTable<string, int> cht(5, 0.75);
+RbTree<string, float> rb;
 
 for(int i = 1; i <= 4; i++){
     string str;
-    int x;
+    float x;
     cin >> str >> x;
-    avt.insert(str, x);
-    cht.add(str, x);
+    // avt.insert(str, x);
+    // cht.add(str, x);
     rb.insert(str, x);
 }
 
-avt.show();
+// avt.show();
 rb.show();
-cht.show();
+// cht.show();
 
 // string str;
 // cin >> str;

@@ -1,6 +1,6 @@
 /**
- * @file HashTable.h
- * @author your name (you@domain.com)
+ * @file HashTable.hpp
+ * @author Paulo Henrique (phenriquedss@alu.ufc.br)
  * @brief Uma tabela hash com tratamento de colisao por encadeamento exterior
  * Estrutura de dados avancada - 2025.1
  * @version 0.1
@@ -115,7 +115,7 @@ public:
 
 
     /**
-     * @brief Retorna o numero de elementos na tabela hash
+     * @brief Retorna o numero de elementos na tabela hash.
      */
     size_t size() const {
         return m_number_of_elements;
@@ -123,7 +123,7 @@ public:
 
 
     /**
-     * @brief Retorna um booleano indicando se a tabela esta vazia
+     * @brief Retorna um booleano indicando se a tabela esta vazia.
      */
     bool empty() const {
         return m_number_of_elements == 0;
@@ -146,7 +146,7 @@ public:
 
     /**
      * @brief Retorna o numero de elementos armazenados no slot n da tabela.
-     * O valor de n deve ser tal que 0 <= n <= m_table_size - 1
+     * O valor de n deve ser tal que 0 <= n <= m_table_size - 1.
      * 
      * @param n := numero do slot
      * @return size_t := numero de elementos no slot n
@@ -170,14 +170,14 @@ public:
     }
 
     /**
-     * @brief retorna o valor do fator de carga atual
+     * @brief retorna o valor do fator de carga atual.
      */
     float load_factor() const {
         return static_cast<float>(m_number_of_elements) / m_table_size;
     }
 
     /**
-     * @brief retorna o maior valor que o fator de carga pode ter
+     * @brief retorna o maior valor que o fator de carga pode ter.
      */
     float max_load_factor() const {
         return m_max_load_factor;
@@ -201,7 +201,7 @@ public:
     /**
      * @brief Destroy the Hash Table object
      */
-    //~ChainedHashTable() = default;
+    ~Chained_HashTable() = default;
 
 
     /**
@@ -251,9 +251,6 @@ public:
 
         return false;
     }
-
-
-
 
     /**
      * @brief Retorna uma referencia para o valor associado a chave k.

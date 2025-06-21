@@ -51,23 +51,23 @@ public:
     }
 
 private:
-struct Node{
-    bool color;
-    std::pair<Key, Value> pair;
-    Node *right;
-    Node *left;
-    Node *parent;
+    struct Node{
+        bool color;
+        std::pair<Key, Value> pair;
+        Node *right;
+        Node *left;
+        Node *parent;
 
-    Node(bool cor, std::pair<Key, Value> P, Node *direita, Node *esquerda, Node *pai){
-        this->color = cor;
-        this->pair = P;
-        this->right = direita;
-        this->left = esquerda;
-        this->parent = pai;
-    }
-};
-    Node *_root;
-    Node *T_nil;
+        Node(bool cor, std::pair<Key, Value> P, Node *direita, Node *esquerda, Node *pai){
+            this->color = cor;
+            this->pair = P;
+            this->right = direita;
+            this->left = esquerda;
+            this->parent = pai;
+        }
+    };
+        Node *_root;
+        Node *T_nil;
 
     void _insert(Key k, Value v){
         Node* x = _root;
@@ -79,7 +79,8 @@ struct Node{
             }else if(k > x->pair.first){
                 x = x->right;
             }else{
-                break;
+                x->pair.second++;
+                return;
             }
         }
         Node* z = new Node(RED, {k, v}, T_nil, T_nil, y);
@@ -89,11 +90,9 @@ struct Node{
         }else if(k < y->pair.first){
             y->left = z;
             insert_fixUp(z);
-        }else if(k > y->pair.first){
+        }else{
             y->right = z; 
             insert_fixUp(z);
-        }else{
-            y->pair.second++;
         }
     }
 
@@ -156,13 +155,16 @@ struct Node{
         if (node == T_nil)
             return false;
 
-        if (node->pair.first == k){
-            return true;
-        }else if (node->pair.first > k){
-            return _contains(node->left, k);
-        }else{
-            return _contains(node->right, k);
+        while(node != T_nil){
+            if(k < node->pair.first){
+                node = node->left;
+            }else if(k > node->pair.first){
+                node = node->right;
+            }else{
+                return true;
+            }
         }
+        return false;
     }
 
     int _size(Node* node){

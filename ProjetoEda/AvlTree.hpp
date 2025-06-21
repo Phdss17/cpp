@@ -1,57 +1,136 @@
-// avl generica
+/**
+ * @file AvlTree.hpp
+ * @author Paulo Henrique (phenriquedss@alu.ufc.br)
+ * @brief Uma Árvore AVL
+ * Estrutura de dados avancada - 2025.1
+ * @version 0.1
+ * @date 2025-04-06
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef AVLTREE_HPP
 #define AVLTREE_HPP
 #include <iostream>
 #include <queue>
 #include <utility>
 
+
+/**
+ * @brief Classe que implementa uma Árvore AVL
+ * 
+ * Os tipos Key e Value, caso sejam classes, devem ter um construtor default. 
+ * Além disso, o tipo Key deve sobrecarregar o operador de igualdade (==) e 
+ * de comparação (<) (>).
+ * 
+ * @tparam Key key type
+ * @tparam Value value type
+ */
 template <typename Key, typename Value>
 class AvlTree{
 public:
+    /**
+     * @brief Construtor: Cria uma árvore AVL vazia.
+     *  
+     */
     AvlTree(){
         _root = nullptr;
     }
-
+    
+    /**
+     * @brief Destrutor: Remove cada elemento da árvore e então a destrói.
+     *  
+     */
     ~AvlTree(){
         _root = _clear(_root);
     }
-
+    
+    /**
+     * @brief insert privado que caminha pela arvore fazendo comparações com a chave e 
+     * caso ache, incrementa o valor da chave, se não, cria um novo par e adiciona na arvore
+     * 
+     * @param k := chave
+     * @param v := valor 
+     */
     void insert(Key k, Value v){
         _root = _insert(_root, k, v);
     }
 
-    std::pair<Key, Value> getKey(Key k){
+    /**
+     * @brief Procura por uma chave e retorna o valor associado.
+     * 
+     * @param k := chave
+     * @return v := Valor associado a chave
+     */
+    Value getKey(Key k){
         return _get(_root, k);
     }
 
+    /**
+     * @brief Limpa todos os elementos da árvore.
+     * 
+     */
     void clear(){
         _root = _clear(_root);
     }
 
+    /**
+     * @brief Recebe como entrada uma chave k e caso exista,
+     *  remove o elemento com essa chave da árvore.
+     * 
+     * @param k := chave a ser removida
+     */
     void erase(Key k){
         _root = _remove(_root, k);
     }
 
+    /**
+     * @brief Recebe como entrada uma chave k e retorna true
+     * se e somente se q chave k estiver presente na árvore. 
+     * 
+     * @param k := chave a ser pesquisada
+     */
     bool contains(Key k) const{
         return _contains(_root, k);
     }
 
+    /**
+     * @brief Retorna true se a árvore estiver vazia.
+     * 
+     */
     bool empty() const{
         return _root == nullptr;
     }
 
-    int size() const{
+    /**
+     * @brief Retorna o tamanho da árvore. 
+     * 
+     */
+    size_t size() const{
         return _size(_root);
     }
 
+    /**
+     * @brief Imprime a árvore usando pré-ordem.
+     * 
+     */
     void show() const{
         _show(_root);
         std::cout << std::endl;
     }
 
 private:
-    struct Node
-    {
+    /**
+    * @brief Struct Node genérico.
+    * 
+    * Os tipos Key e Value, caso sejam classes, devem ter um construtor default. 
+    * Além disso, o tipo Key deve sobrecarregar o operador de igualdade (==) e 
+    * de comparação (<) (>).
+    * 
+    * @tparam Key key type
+    * @tparam Value value type
+    */
+    struct Node{
         std::pair<Key, Value> pair;
         Node *left;
         Node *right;
@@ -64,10 +143,18 @@ private:
             this->height = Altura;
         }
     };
-
+    //Nó raiz e contador do tipo size_t para suportar tamanhos imensos.
     Node *_root;
     size_t cont;
 
+    /**
+     * @brief insert privado que caminha recursivamente pela arvore fazendo comparações com a chave e 
+     * caso ache, incrementa o valor da chave, se não, cria um novo par e adiciona na arvore
+     * 
+     * @param node := nó a partir do qual será iniciada a procura.
+     * @param k := chave
+     * @param v := valor 
+     */
     Node* _insert(Node *node, Key k, Value v){
         if (node == nullptr){
             return new Node(std::make_pair(k, v), nullptr, nullptr);
@@ -87,7 +174,14 @@ private:
         return node;
     }
 
-    std::pair<Key, Value> _get(Node* node, Key k) {
+    /**
+     * @brief Procura recursivamente por uma chave e retorna o valor associado.
+     * 
+     * @param node := nó a partir do qual será iniciada a procura.
+     * @param k := chave.
+     * @return v := Valor associado a chave.
+     */
+    Value _get(Node* node, Key k) {
         if (node == nullptr)
             throw std::runtime_error("Key not found");
 
@@ -100,6 +194,11 @@ private:
         }
     }
 
+    /**
+     * @brief Limpa todos os elementos da árvore recursivamente.
+     * 
+     * @param node := nó que será removido junto de seus filhos.
+     */
     Node* _clear(Node *node){
         if (node != nullptr){
             node->left = _clear(node->left);
@@ -109,6 +208,17 @@ private:
         return nullptr;
     }
 
+    /**
+     * @brief Recebe como entrada um nó e uma chave k.
+     *  Se chegar em nullptr, retorna nullptr, caso contrário, 
+     *  verifica se k é menor ou maior e caminha nessa direção na árvore recursivamente,
+     *  caso não, verifica se o nó a direita é nullptr, se for guarda o nó a esquerda, deleta 
+     *  o nó atual retorna o nó guardado, se não o nó a direita recebe remove_sucessor mandando o node
+     *  e o nó a direita, então o node recebe fixUp deletion node e é retornado. 
+     * 
+     * @param node := nó que a partir do qual será procurado a chave.
+     * @param k := chave a ser removida.
+     */
     Node* _remove(Node *node, Key key){
         if (node == nullptr)
             return nullptr;
@@ -131,23 +241,40 @@ private:
         return node;
     }
 
+    /**
+     * @brief Recebe um nó root e um nó node.
+     *  Se o nó a esquerda do node for diferente de nullptr, chama recursivamente a função,
+     *  atribui ao node->left e chama fixUp deletion e retorna o node.
+     *  Se não atribui a chave do node a chave da raiz, guarda o node->right em um aux, 
+     *  então deleta o node e retorna o aux. 
+     * 
+     * @param _root := nó o qual vai ser removido.
+     * @param node := nó de substituição.
+     */
     Node* remove_successor( Node * root , Node * node ) {
-
-        if ( node -> left != nullptr ){
-            node -> left = remove_successor( root , node -> left ) ;
+        if( node -> left != nullptr ){
+            node -> left = remove_successor( root , node -> left );
             node = fixup_deletion(node);
             return node;
-        }else {
+        }else{
             root -> pair.first = node -> pair.first;
-            Node * aux = node -> right ;
-            delete node ;
-            return aux ;
+            Node * aux = node -> right;
+            delete node;
+            return aux;
         }
 
         node = fixup_deletion(node);
         return node ;
     }
 
+    /**
+     * @brief Recebe um nó e rebalanceia o nó caso esteja desbalanceado.
+     *  Redefine a altura do nó com base nos filhos.
+     *  Inicializa a variavél bal usando a função balance, então verifica os casos de rebalanceamento 
+     *  e faz as rotações nécessarias, então retorna o node. 
+     * 
+     * @param node := nó possivelmente desbalanceado.
+     */
     Node *fixup_deletion(Node *node){
         node->height = 1 + std::max(_height(node->left), _height(node->right));
         int bal = _balance(node);
@@ -167,6 +294,14 @@ private:
         return node;
     }
 
+    /**
+     * @brief Recebe um nó e uma chave k, se a recursão cheagar em null, retorna false
+     *  se a chave do nó atual da recursão for igual a chave procurada, retorna true,
+     *  caso contrário caminha pela árvore recursivamente na direção indicada pela comparação com a chave do nó atual. 
+     * 
+     * @param node := nó "base" da busca.
+     * @param k := chave buscada.
+     */
     bool _contains(Node *node, Key k) const{
         if (node == nullptr)
             return false;
@@ -180,7 +315,14 @@ private:
         }
     }
 
-    int _height(Node *node) const{
+    /**
+     * @brief Recebe um nó e retorna sua altura com base nos seus filhos.
+     *  verifica se o nó é nullptr, se for retorna 0, caso não,
+     *  retorna o campo height do nó. 
+     * 
+     * @param node := nó que se deseja saber a altura.
+     **/
+    size_t _height(Node *node) const{
         if (node == nullptr){
             return 0;
         }else{
@@ -188,13 +330,27 @@ private:
         }
     }
 
-    int _size(Node *node) const{
+    /**
+     * @brief Recebe um nó e retorna a quantidade de nós a partir dele.
+     *  verifica se o nó é nullptr, se for retorna 0, caso não,
+     *  retorna 1 + a recursão da função para os nós filhos. 
+     * 
+     * @param node := nó a partir do qual se deseja saber a quantidade de nós.
+     **/
+    size_t _size(Node *node) const{
         if (node == nullptr)
             return 0;
 
         return _size(node->left) + _size(node->right) + 1;
     }
 
+    /**
+     * @brief Recebe um nó e retorna o nó resultado da rotação a direita.
+     *  guarda o filho esquerdo do nó em um aux, guarda o filho direito no esquerdo e o nó no seu filho direito,
+     *  então recalcula as alturas e retorna o aux. 
+     * 
+     * @param node := nó pivô da rotação.
+     **/
     Node *right_rotation(Node *node){
         Node *aux = node->left;
         node->left = aux->right;
@@ -205,6 +361,13 @@ private:
         return aux;
     }
 
+    /**
+     * @brief Recebe um nó e retorna o nó resultado da rotação a esquerda.
+     *  guarda o filho direito do nó em um aux, guarda o filho esquerdo no direito e o nó no seu filho esquerdo,
+     *  então recalcula as alturas e retorna o aux. 
+     * 
+     * @param node := nó pivô da rotação.
+     **/
     Node *left_rotation(Node *node){
         Node *aux = node->right;
         node->right = aux->left;
@@ -215,10 +378,23 @@ private:
         return aux;
     }
 
+    /**
+     * @brief Recebe um nó e retorna  seu balanço com base na altura dos filhos.
+     * 
+     * @param node := nó o qual se deseja saber o balanço.
+     **/
     int _balance(Node *node) const{
         return _height(node->right) - _height(node->left);
     }
 
+     /**
+     * @brief Recebe um nó e uma chave k e retorna um nó balanceado.
+     *  Recebe o balanço do nó em uma variável e faz as rotações nécessarias com base 
+     *  no valor do balanço e na comparação das chaves, ao final atualiza o campo altura do nó e o retorna.
+     * 
+     * @param node := nó o qual se deseja rebalancear.
+     * @param k := chave do nó o qual se deseja rebalancear.
+     **/
     Node *_fixupNode(Node *node, Key k){
         int bal = _balance(node);
 
@@ -246,6 +422,11 @@ private:
         return node;
     }
 
+    /**
+     * @brief Recebe um nó e a partir dele imprime os campos chave e valor do nó.
+     * 
+     * @param node := nó a partir do qual se deseja mostrar na árvore.
+     **/
     void _show(Node *node) const{
         if (node == nullptr)
             return;
@@ -256,4 +437,4 @@ private:
     }
 };
 
-#endif
+#endif //END of AVLTREE_HPP

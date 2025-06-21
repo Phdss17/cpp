@@ -1,2 +1,2 @@
 # Phdss
-Projeto de implemetação de dicionarios usando as estruturas as arvores avl e rubro-negra e as tebelas hash
+Projeto de implemetação de dicionarios usando as estrutura arvore avl e rubro-negra e as tebelas hash
