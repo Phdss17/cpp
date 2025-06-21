@@ -1,8 +1,14 @@
 #include <iostream>
 #include "Rb.hpp"
+using namespace std;
 
 int main(){
-    Rb<string, int>() rb;
+    Rb<string, int> rb;
+    
+    rb.insert("ph", 10);
+    rb.insert("vitoria", 5);
+    rb.insert("amor", 100);
+    rb.insert("teste", 1000);
 
-    return 0;
+    rb.show();
 }

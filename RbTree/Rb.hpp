@@ -1,18 +1,23 @@
 #ifndef RB_HPP
 #define RB_HPP
+#include <utility>
+
+#define RED true
+#define BLACK false
 
 template <typename Key, typename Value>
 class Rb{
 public:
     Rb(){
-        T_nil = new Node(BLACK, std::pair<Key, Value>, nullptr, nullptr, nullptr);
+        T_nil = new Node(BLACK, {Key(), Value()}, nullptr, nullptr, nullptr);
         T_nil->left = T_nil->right = T_nil;
         _root = T_nil;
-        _root->p = T_nil;
+        _root->parent = T_nil;
     }
 
     ~Rb(){
         _clear(_root);
+        delete T_nil;
     }
 
     void clear(){
@@ -20,15 +25,15 @@ public:
     }
 
     void insert(Key k, Value v){
-        _insert(_root, k, v);
+        _insert(k, v);
     }
 
     void remove(Key k){
-        _remove(_root, k);
+        _remove(k);
     }
 
     bool contains(Key k){
-        return _contains(_root, k);
+        return _contains(k);
     }
 
     bool empty(){
@@ -41,30 +46,31 @@ public:
 
     void show(){
         _show(_root);
+        std::cout << std::endl;
+        bshow(_root, "");
     }
 
 private:
-    Node<Key, Value> *_root;
-    Node<Key, Value> *T_nil;
+struct Node{
+    bool color;
+    std::pair<Key, Value> pair;
+    Node *right;
+    Node *left;
+    Node *parent;
 
-    struct Node{
-        bool color;
-        std::pair(Key, value) pair;
-        Node *right;
-        Node *left;
-        Node *parent;
+    Node(bool cor, std::pair<Key, Value> P, Node *direita, Node *esquerda, Node *pai){
+        this->color = cor;
+        this->pair = P;
+        this->right = direita;
+        this->left = esquerda;
+        this->parent = pai;
+    }
+};
+    Node *_root;
+    Node *T_nil;
 
-        Node(bool cor, std::pair(Key, Value) P, Node *direita, Node *esquerda, Node *pai){
-            this->color = cor;
-            this->pair = P;
-            this->right = direita;
-            this->left = esquerda;
-            this->parent = pai;
-        }
-    };
-
-    void _insert(Node* node, Key k, Value v){
-        node* x = node;
+    void _insert(Key k, Value v){
+        Node* x = _root;
         Node* y = T_nil;
         while(x != T_nil){
             y = x;
@@ -73,7 +79,7 @@ private:
             }else if(k > x->pair.first){
                 x = x->right;
             }else{
-                return x;
+                break;
             }
         }
         Node* z = new Node(RED, {k, v}, T_nil, T_nil, y);
@@ -84,10 +90,10 @@ private:
         }else{
             y->right = z; 
         }
-        _insert_fixUp(_root, z);
+        insert_fixUp(z);
     }
 
-    void _remove(Node* _root, Key k){
+    void _remove(Key k){
         Node* p = _root;
         while(p != T_nil && p->pair.first != k){
             if(k < p->pair.first){
@@ -97,17 +103,17 @@ private:
             }
         }
         if(p != T_nil){
-            _delete(_root, p);
+            _delete(p);
         }
     }
 
-    void delete(Node* _root, Node* node){
+    void _delete(Node* node){
         Node* y = T_nil;
         Node* x = T_nil;
         if(node->left == T_nil || node->right == T_nil){
             y = node;
         }else{
-            y = _Minumum(node->right);
+            y = minumum(node->right);
         }
         if(y->left != T_nil){
             x = y->left;
@@ -116,7 +122,7 @@ private:
         }
         x->parent = y->parent;
         if(y->parent == T_nil){
-            _root = x
+            _root = x;
         }else{
             if(y == y->parent->left){
                 y->parent->left = x;
@@ -134,7 +140,7 @@ private:
     }
 
     Node* _clear(Node *node){
-        if (node != nullptr){
+        if (node != T_nil){
             node->left = _clear(node->left);
             node->right = _clear(node->right);
             delete node;
@@ -142,8 +148,8 @@ private:
         return nullptr;
     }
 
-    bool _contains(Node* node) const{
-        if (node == nullptr)
+    bool _contains(Node* node, Key k) const{
+        if (node == T_nil)
             return false;
 
         if (node->pair.first == k){
@@ -156,19 +162,45 @@ private:
     }
 
     int _size(Node* node){
-        if (node == nullptr)
+        if (node == T_nil)
             return 0;
 
         return _size(node->left) + _size(node->right) + 1;
     }
 
-    void _show() const{
-        if (node == nullptr)
+    void _show(Node* node) const{
+        if (node == T_nil)
             return;
 
         _show(node->left);
         std::cout << node->pair.first << "|" << node->pair.second << std::endl;
         _show(node->right);
+    }
+
+    void bshow(Node *node, std::string heranca) {
+        if(node != T_nil && (node->left != T_nil || node->right != T_nil))
+            bshow(node->right , heranca + "r");
+
+        for(int i = 0; i < (int) heranca.size() - 1; i++)
+            std::cout << (heranca[i] != heranca[i + 1] ? "|   " : "    ");
+
+        if(heranca != "")
+            std::cout << (heranca.back() == 'r' ? "|-- " : "|-- ");
+        
+        if(node == T_nil){
+            std::cout << "#" << std::endl;
+            return;
+        }
+
+        std::cout << node->pair.first;
+        if(node->color == RED){
+            std::cout << " (red)" << std::endl;
+        } else {
+            std::cout << " (black)" << std::endl;
+        }
+
+        if(node != T_nil && (node->left != T_nil || node->right != T_nil))
+            bshow(node->left, heranca + "l");
     }
 
     Node* minumum(Node* node){
@@ -178,7 +210,7 @@ private:
         return node;
     }
 
-    void insert_fixUp(Node* _root, Node* node){
+    void insert_fixUp(Node* node){
         while(node->parent->color == RED){
             if(node->parent == node->parent->parent->left){
                 Node* aux = node->parent->parent->right;
@@ -217,7 +249,7 @@ private:
         _root->color = BLACK;
     }
 
-    void delete_fixUp(Node* _root, Node* node){
+    void delete_fixUp(Node* node){
         Node* w = T_nil;
         while(node != _root && node->color == BLACK){
             if(node == node->parent->left){
@@ -225,7 +257,7 @@ private:
                 if(w->color == RED){
                     w->color = BLACK;
                     node->parent->color = RED;
-                    left_rotate(_root, node->parent);
+                    left_rotate(node->parent);
                     w = node->parent->right;
                 }
                 if(w->left->color == BLACK && w->right->color == BLACK){
@@ -235,12 +267,12 @@ private:
                     if(w->right->color == BLACK){
                         w->left->color = BLACK;
                         w->color = RED;
-                        right_rotate(_root, w);
+                        right_rotate(w);
                     }
                     w->color = node->parent->color;
                     node->parent->color = BLACK;
                     w->right->color = BLACK;
-                    left_rotate(_root, node->parent);
+                    left_rotate(node->parent);
                     node = _root;
                 }
             }else{
@@ -248,7 +280,7 @@ private:
                 if(w->color == RED){
                     w->color = BLACK;
                     node->parent->color = RED;
-                    right_rotate(_root, node->parent);
+                    right_rotate(node->parent);
                     w = node->parent->left;
                 }
                 if(w->right->color == BLACK && w->left->color == BLACK){
@@ -258,12 +290,12 @@ private:
                     if(w->left->color == BLACK){
                         w->right->color = BLACK;
                         w->color = RED;
-                        left_rotate(_root, w);
+                        left_rotate(w);
                     }
                     w->color = node->parent->color;
                     node->parent->color = BLACK;
                     w->left->color = BLACK;
-                    right_rotate(_root, node->parent);
+                    right_rotate(node->parent);
                     node = _root;
                 }
             }
@@ -271,10 +303,10 @@ private:
         node->color = BLACK;
     }
 
-    void left_rotate(Node* _root, Node* node){
+    void left_rotate(Node* node){
         Node* y = node->right;
         node->right = y->left;
-        if(y-> != T_nil){
+        if(y->left != T_nil){
             y->left->parent = node;
         }
         y->parent = node->parent;
@@ -289,10 +321,10 @@ private:
         node->parent = y;
     }
 
-    void right_rotate(Node* _root, Node* node){
+    void right_rotate(Node* node){
         Node* y = node->left;
         node->left = y->right;
-        if(y-> != T_nil){
+        if(y->right != T_nil){
             y->right->parent = node;
         }
         y->parent = node->parent;
