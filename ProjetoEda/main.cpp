@@ -17,14 +17,16 @@ RbTree<string, int> rb;
 
 for(int i = 1; i <= 4; i++){
     string str;
-    cin >> str;
-    avt.insert(str, i);
-    cht.add(str, i);
-    rb.insert(str, i);
+    int x;
+    cin >> str >> x;
+    avt.insert(str, x);
+    cht.add(str, x);
+    rb.insert(str, x);
 }
 
 avt.show();
 rb.show();
+cht.show();
 
 // string str;
 // cin >> str;

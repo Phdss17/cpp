@@ -19,6 +19,7 @@
 #include <vector>
 #include <utility>
 #include <functional>
+#include "AvlTree.hpp"
 
 /**
  * @brief Classe que implementa uma tabela hash com tratamento de
@@ -54,8 +55,6 @@ private:
 
     // referencia para a funcao de codificacao
     Hash m_hashing;
-
-
 
     /**
      * @brief Retorna o menor numero primo que eh maior que ou igual
@@ -223,8 +222,9 @@ public:
             rehash(2 * m_table_size);
         }
         size_t slot = hash_code(k);
-        for(auto p : m_table[slot]) {
+        for(auto& p : m_table[slot]) {
             if(p.first == k) {
+               p.second++;
                 return false;
             }
         }
@@ -420,6 +420,17 @@ public:
      */
     const Value& operator[](const Key& k) const {
         return at(k);
+    }
+
+    const void show(){
+        AvlTree<Key, Value> avt;
+
+        for(int i = 0; i < m_table_size; i++){
+            for(auto& p : m_table[i]){
+                avt.insert(p.first, p.second);
+            }
+        }
+        avt.show();
     }
 
 };

@@ -85,12 +85,16 @@ struct Node{
         Node* z = new Node(RED, {k, v}, T_nil, T_nil, y);
         if(y == T_nil){
             _root = z;
+            insert_fixUp(z);
         }else if(k < y->pair.first){
             y->left = z;
-        }else{
+            insert_fixUp(z);
+        }else if(k > y->pair.first){
             y->right = z; 
+            insert_fixUp(z);
+        }else{
+            y->pair.second++;
         }
-        insert_fixUp(z);
     }
 
     void _remove(Key k){
