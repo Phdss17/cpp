@@ -3,30 +3,37 @@
 #include <fstream>
 #include <string>
 #include "AvlTree.hpp"
+#include "Chained_HashTable.hpp"
+#include "RbTree.hpp"
 using namespace std; 
 
 int main(){
 //o uso de string permite a manipulação de todos os outros tipos
 //e ainda emprime por ordem de tamanho e alfabetica automaticamente
 //no entanto leva em consideração a captularização das letras
-AvlTree<string, int> t;
+AvlTree<string, int> avt;
+Chained_HashTable<string, int> cht(5, 0.75);
+RbTree<string, int> rb;
 
 for(int i = 1; i <= 4; i++){
     string str;
     cin >> str;
-    t.insert(str);
+    avt.insert(str, i);
+    cht.add(str, i);
+    rb.insert(str, i);
 }
 
-t.show();
+avt.show();
+rb.show();
 
-string str;
-cin >> str;
-t.erase(str);
-t.show();
+// string str;
+// cin >> str;
+// t.erase(str);
+// t.show();
 
-cin >> str;
-auto result = t.getKey(str);
-cout << result.first << "|" << result.second;
+// cin >> str;
+// auto result = t.getKey(str);
+// cout << result.first << "|" << result.second;
 
 return 0;
 }

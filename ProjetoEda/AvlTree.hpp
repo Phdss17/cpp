@@ -16,8 +16,8 @@ public:
         _root = _clear(_root);
     }
 
-    void insert(Key k){
-        _root = _insert(_root, k);
+    void insert(Key k, Value v){
+        _root = _insert(_root, k, v);
     }
 
     std::pair<Key, Value> getKey(Key k){
