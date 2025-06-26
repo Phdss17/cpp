@@ -1,41 +1,55 @@
-//main teste das estruturas genericas
+//main atual com a leitura de argumentos pelo terminal e leitura e criação de arquivos 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <utility>
 #include "AvlTree.hpp"
-#include "Chained_HashTable.hpp"
 #include "RbTree.hpp"
+#include "Chained_HashTable.hpp"
 using namespace std; 
 
-int main(){
-//o uso de string permite a manipulação de todos os outros tipos
-//e ainda emprime por ordem de tamanho e alfabetica automaticamente
-//no entanto leva em consideração a captularização das letras
-// AvlTree<string, int> avt;
-// Chained_HashTable<string, int> cht(5, 0.75);
-RbTree<string, float> rb;
+int main(int argc, char* argv[]){
+    vector<string> argumentos;
 
-for(int i = 1; i <= 4; i++){
-    string str;
-    float x;
-    cin >> str >> x;
-    // avt.insert(str, x);
-    // cht.add(str, x);
-    rb.insert(str, x);
-}
+    for (int i = 1; i < argc; ++i) {
+        argumentos.push_back(argv[i]);
+    }
 
-// avt.show();
-rb.show();
-// cht.show();
+    if(argumentos[0] == "dictionary_avl"){
+        try{
+            ifstream entrada(argumentos[1]);
 
-// string str;
-// cin >> str;
-// t.erase(str);
-// t.show();
+            if (!entrada) {
+                throw runtime_error("Não foi possível abrir o arquivo para leitura.");
+            }
 
-// cin >> str;
-// auto result = t.getKey(str);
-// cout << result.first << "|" << result.second;
+            AvlTree<string, int> avl;
+            string conteudo;
+            while (getline(entrada, conteudo)) {
+                avl.insert(conteudo, 1);
+            }
 
-return 0;
+            entrada.close();
+        
+            string txt;
+            cin >> txt;
+            ofstream saida(txt);
+            if (!saida) {
+                throw runtime_error("Não foi possível criar o arquivo.");
+            }
+
+            vector<pair<string, int>> p = avl.getAll();
+            for(int i = 0; i < p.size(); i++){
+                saida << p.at(i).first << "|" << p.at(i).second << endl;
+            }
+        
+            saida.close();
+        } catch (const exception& e) {
+            cerr << "Erro: " << e.what() << endl;
+            return 1;
+        }
+    }
+
+    return 0;
 }

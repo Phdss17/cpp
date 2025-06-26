@@ -12,8 +12,9 @@
 #ifndef AVLTREE_HPP
 #define AVLTREE_HPP
 #include <iostream>
-#include <queue>
+#include <stack>
 #include <utility>
+#include <algorithm>
 
 
 /**
@@ -117,6 +118,10 @@ public:
     void show() const{
         _show(_root);
         std::cout << std::endl;
+    }
+
+    std::vector<std::pair<Key, Value>> getAll(){
+        return _getAll();
     }
 
 private:
@@ -434,6 +439,24 @@ private:
         _show(node->left);
         std::cout << node->pair.first << "|" << node->pair.second << std::endl;
         _show(node->right);
+    }
+
+    std::vector<std::pair<Key, Value>> _getAll(){
+        std::stack<Node*> pilha;
+        Node* node = _root;
+        std::vector<std::pair<Key, Value>> p;
+        pilha.push(_root);
+        while( !pilha.empty() || node != nullptr) {
+            if(node != nullptr){
+                pilha.push(node);
+                node = node->left;
+            }else{
+                node = pilha.top();
+                pilha.pop();
+                p.push_back(node->pair);
+            }
+        }
+        return p;
     }
 };
 

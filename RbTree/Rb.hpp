@@ -79,7 +79,7 @@ struct Node{
             }else if(k > x->pair.first){
                 x = x->right;
             }else{
-                break;
+                return;
             }
         }
         Node* z = new Node(RED, {k, v}, T_nil, T_nil, y);
