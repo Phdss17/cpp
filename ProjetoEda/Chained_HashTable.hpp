@@ -1,5 +1,5 @@
 /**
- * @file HashTable.hpp
+ * @file Chained_HashTable.hpp
  * @author Paulo Henrique (phenriquedss@alu.ufc.br)
  * @brief Uma tabela hash com tratamento de colisao por encadeamento exterior
  * Estrutura de dados avancada - 2025.1
@@ -307,8 +307,8 @@ public:
             m_number_of_elements = 0;
             m_table_size = new_table_size;
             for(size_t i = 0; i < old_vec.size(); ++i) {
-                for(auto& par : old_vec[i]) {
-                    add(par.first, par.second);
+                for(auto& pair : old_vec[i]) {
+                    add(pair.first, pair.second);
                 }
                 old_vec[i].clear(); // opcional
             }            

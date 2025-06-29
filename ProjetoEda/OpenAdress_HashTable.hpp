@@ -1,28 +1,27 @@
 /**
- * @file Cht.h
+ * @file Oah.hpp
  * @author Paulo Henrique (phenriquedss@alu.ufc.br)
- * @brief Uma tabela hash com tratamento de colisao por encadeamento exterior
+ * @brief Uma tabela hash com tratamento de colisao por endereçamento aberto
  * Estrutura de dados avancada - 2025.1
  * @version 0.1
- * @date 2025-06-10
+ * @date 2025-06-26
  * 
  * @copyright Copyright (c) 2025
  * 
  */
-#ifndef CHT_HPP
-#define CHT_HPP
+#ifndef OPENADRESS_HASHTABLE_HPP
+#define OPENADRESS_HASHTABLE_HPP
 
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <list>
 #include <vector>
 #include <utility>
 #include <functional>
 
 /**
  * @brief Classe que implementa uma tabela hash com tratamento de
- * colisao por encadeamento exterior (chained hash table).
+ * colisao por endereçamento aberto (Open Adressing hash table).
  * 
  * Os tipos Key e Value, caso sejam classes, devem ter um construtor default. 
  * Além disso, o tipo Key deve sobrecarregar o operador de igualdade (==).
@@ -33,14 +32,46 @@
  * @tparam Value value type
  * @tparam Hash hash function type
  */
-template <typename Key, typename Value, typename Hash = std::hash<Key>>
-class Cht {
-private:
+template <typename Key, typename Value = int, typename Hash = std::hash<Key>>
+class OpenAdress_HashTable{
+    private:
+
+    /**
+    * @brief Enum usado para a verificação de status.
+    * 
+    */
+    enum class Status {
+    EMPTY,
+    ACTIVE,
+    DELETED
+    };
+
+    /**
+    * @brief Struct Node genérico.
+    * 
+    * Os tipos Key e Value, caso sejam classes, devem ter um construtor default. 
+    * Além disso, o tipo Key deve sobrecarregar o operador de igualdade (==) e 
+    * de comparação (<) (>).
+    * 
+    * @tparam Key key type
+    * @tparam Value value type
+    */
+    struct Node{
+        std::pair<Key, Value> pair;
+        Status status;
+
+        Node(std::pair<Key, Value> pair, Status status = Status::EMPTY){
+            this->pair = pair;
+            this->status = status;
+        }
+    };
+
     // quantidade de pares (chave,valor)
     size_t m_number_of_elements;
 
     // tamanho atual da tabela
     size_t m_table_size;
+
 
     // O maior valor que o fator de carga pode ter. 
     // Seja load_factor = m_number_of_elements/m_table_size.
@@ -50,12 +81,10 @@ private:
     float m_max_load_factor;
 
     // tabela                               
-    std::vector<std::list<std::pair<Key,Value>>> m_table;
+    std::vector<Node*> m_table;
 
     // referencia para a funcao de codificacao
     Hash m_hashing;
-
-
 
     /**
      * @brief Retorna o menor numero primo que eh maior que ou igual
@@ -82,28 +111,79 @@ private:
     }
 
     /**
+     * @brief funcao de hash auxiliar para calculo de posicao.
+     * 
+     * @param key := chave o qual o hash sera retornado.
+     * @return size_t := hash da chave.
+     */
+    size_t hash1(const Key& key) const {
+        return m_hashing(key) % m_table_size;
+    }
+
+    /**
+     * @brief funcao de hash auxiliar para calculo de "salto".
+     * 
+     * @param key := chave o qual o "salto" sera retornado.
+     * @return size_t := tamanho do salto da chave.
+     */
+    size_t hash2(const Key& key) const {
+        return 1 + (m_hashing(key) % (m_table_size-1));
+    }
+
+    /**
+     * @brief funcao de hash principal que calcula a posição considerando o salto.
+     * 
+     * @param key := chave a qual a posicao sera retornada.
+     * @return size_t := posicao da chave.
+     */
+    size_t hash(const Key& key, const size_t& i)const{
+        return (hash1(key) + i * hash2(key)) % m_table_size;
+    }
+
+    /**
      * @brief Retorna um inteiro no intervalo [0 ... m_table_size-1].
-     * Esta funcao recebe uma chave k e faz o seguinte:
+     * Esta funcao recebe uma chave k e um size_t e faz o seguinte:
      * (1) computa o codigo hash h(k) usando a 
      *     funcao no atributo privado m_hashing
      * (2) computa um indice no intervalo [0 ... m_table_size-1] 
      *     aplicando o metodo da divisao: h(k) % m_table_size
      * 
      * @param k := um valor de chave do tipo Key
+     * @param i := valor modificador do hash.
      * @return size_t := um inteiro no intervalo [0 ... m_table_size-1]
      */
-    size_t hash_code(const Key& k) const {
-        return m_hashing(k) % m_table_size;
+    size_t hash_code(const Key& key, const size_t& i)const{
+        return hash(key, i);
+    } 
+
+    /**
+     * @brief funcao auxililar de busca de chave, recebe uma chave e a procura
+     * se for encontrada é retornado o index, caso nao -1.
+     * 
+     * @param key := chave a qual o index sera procurado.
+     * @return size_t := index da chave;
+     */    
+    size_t aux_hashSearch(const Key& key){
+        size_t i = 0;
+        size_t j = 0;
+        do{
+            j = hash_code(key, i);
+            if(m_table[j]->status == Status::ACTIVE && m_table[j]->pair.first == key){
+                return j;
+            }
+            i++;
+        }while(m_table[j]->status != Status::EMPTY && i < m_table_size);
+        return -1;
     }
 
+    public:
 
-public:
     /**
      * @brief Construtor: cria uma tabela hash com um numero primo de slots.
      * 
      * @param tableSize := o numero de slots da tabela. 
      */
-    Cht(size_t tableSize = 19, float load_factor = 1.0) {
+    OpenAdress_HashTable(size_t tableSize = 19, float load_factor = 1.0) {
         m_number_of_elements = 0;
         m_table_size = get_next_prime(tableSize);
         m_table.resize(m_table_size);
@@ -112,11 +192,15 @@ public:
         } else {
             m_max_load_factor = load_factor;
         }
+
+        for(size_t i = 0; i < m_table_size; i++){
+            m_table[i] = (new Node({Key(), Value()}));
+        }
     }
 
 
     /**
-     * @brief Retorna o numero de elementos na tabela hash
+     * @brief Retorna o numero de elementos na tabela hash.
      */
     size_t size() const {
         return m_number_of_elements;
@@ -124,7 +208,7 @@ public:
 
 
     /**
-     * @brief Retorna um booleano indicando se a tabela esta vazia
+     * @brief Retorna um booleano indicando se a tabela esta vazia.
      */
     bool empty() const {
         return m_number_of_elements == 0;
@@ -144,41 +228,15 @@ public:
         return m_table_size;
     }
 
-
     /**
-     * @brief Retorna o numero de elementos armazenados no slot n da tabela.
-     * O valor de n deve ser tal que 0 <= n <= m_table_size - 1
-     * 
-     * @param n := numero do slot
-     * @return size_t := numero de elementos no slot n
-     */
-    size_t bucket_size(size_t n) const {
-        if(n >= m_table_size) {
-            throw std::out_of_range("invalid index");
-        }
-        return m_table[n].size();
-    }
-
-
-    /**
-     * @brief Retorna o numero do slot onde a chave k estaria localizada.
-     * 
-     * @param k := chave  
-     * @return size_t := numero do slot
-     */
-    size_t bucket(const Key& k) const {
-        return hash_code(k);
-    }
-
-    /**
-     * @brief retorna o valor do fator de carga atual
+     * @brief retorna o valor do fator de carga atual.
      */
     float load_factor() const {
         return static_cast<float>(m_number_of_elements) / m_table_size;
     }
 
     /**
-     * @brief retorna o maior valor que o fator de carga pode ter
+     * @brief retorna o maior valor que o fator de carga pode ter.
      */
     float max_load_factor() const {
         return m_max_load_factor;
@@ -192,8 +250,8 @@ public:
      * deixando-o com zero pares na tabela (size() == 0).
      */
     void clear() {
-        for(size_t i = 0; i < m_table_size; ++i) {
-            m_table[i].clear();
+        for(size_t i = 0; i < m_table_size; i++){
+            m_table[i]->status = Status::EMPTY;
         }
         m_number_of_elements = 0;
     }
@@ -202,7 +260,11 @@ public:
     /**
      * @brief Destroy the Hash Table object
      */
-    //~ChainedHashTable() = default;
+    ~OpenAdress_HashTable(){
+        for(Node* node : m_table){
+            delete node;
+        }
+    }
 
 
     /**
@@ -222,18 +284,27 @@ public:
         if(load_factor() >= m_max_load_factor) {
             rehash(2 * m_table_size);
         }
-        size_t slot = hash_code(k);
-        for(auto p : m_table[slot]) {
-            if(p.first == k) {
-                return false;
-            }
+
+        size_t m = aux_hashSearch(k);
+        if(m != static_cast<size_t>(-1)){
+            m_table[m]->pair.second = v;
+            return true;
         }
-        m_table[slot].push_back(std::make_pair(k, v));
-        m_number_of_elements++;
-        return true;
+        size_t i = 0;
+        size_t j = 0;
+        do{
+            j = hash_code(k, i);
+            if(m_table[j]->status != Status::ACTIVE){
+                m_table[j]->pair = {k, v};
+                m_table[j]->status = Status::ACTIVE;
+                m_number_of_elements++;
+                return true;
+            }
+            i++; 
+        }while(i < m_table_size);
+        return false;
     }
-
-
+    
     /**
      * @brief Recebe como entrada uma chave k e retorna true 
      * se e somente se a chave k estiver presente na tabela hash.
@@ -241,48 +312,34 @@ public:
      * @param k := chave a ser pesquisada
      */
     bool contains(const Key& k) {
-        size_t slot = hash_code(k);
-
-        for(auto& p : m_table[slot]) {
-            if(p.first == k) {
-                return true;
-            }
-        }
-
-        return false;
+        return aux_hashSearch(k) != -1;
     }
-
-
-
-
+    
     /**
-     * @brief Retorna uma referencia para o valor associado a chave k.
-     * Se k nao estiver na tabela, a funcao 
-     * lanca uma out_of_range exception.
+     * @brief recebe uma chave k e procura por ela na tabela, se encontra
+     * retorna seu valor, caso não, lança uma exececao.
      * 
-     * @param k := chave
-     * @return V& := valor associado a chave
-     */
-    Value& at(const Key& k) {
-        size_t slot = hash_code(k);
+     * @param key := chave a qual o valor sera procurado.
+     * @return size_t := valor da chave;
+     */  
+    Value& hashSearch(const Key& k){
+        size_t j = aux_hashSearch(k);
 
-        for(auto& p : m_table[slot]) {
-            if(p.first == k) {
-                return p.second;
-            }
+        if(j != -1){
+            return m_table[j]->pair.second;
+        }else{
+            throw std::out_of_range("key is not in the table"); 
         }
-        throw std::out_of_range("key is not in the table");
     }
 
-    const Value& at(const Key& k) const {
-        size_t slot = hash_code(k);
+    const Value& hashSearch(const Key& k) const {
+        size_t j = aux_hashSearch(k);
 
-        for(auto& p : m_table[slot]) {
-            if(p.first == k) {
-                return p.second;
-            }
+        if(j != -1){
+            return m_table[j]->pair.second;
+        }else{
+            throw std::out_of_range("key is not in the table"); 
         }
-        throw std::out_of_range("key is not in the table");
     }
 
 
@@ -303,21 +360,22 @@ public:
     void rehash(size_t m) {
         size_t new_table_size = get_next_prime(m);
         if(new_table_size > m_table_size) {
-            std::vector<std::list<std::pair<Key,Value>>> old_vec;
+            std::vector<Node*> old_vec;
             old_vec = m_table; // copia as chaves para uma nova tabela
-            m_table.clear(); // apaga todas as chaves da tabela atual e deixa ela vazia
             m_table.resize(new_table_size); // tabela redimensionada com novo primo
             m_number_of_elements = 0;
             m_table_size = new_table_size;
-            for(size_t i = 0; i < old_vec.size(); ++i) {
-                for(auto& par : old_vec[i]) {
-                    add(par.first, par.second);
+            for(size_t i = 0; i < m_table_size; i++){
+                m_table[i] = new Node({Key(), Value()});
+            }       
+            for(Node* node : old_vec){
+                if(node->status == Status::ACTIVE){
+                    add(node->pair.first, node->pair.second);
                 }
-                old_vec[i].clear(); // opcional
-            }            
+                delete node;
+            }
         }
     }
-
 
     /**
      * @brief Remove da tabela hash o elemento com chave k se ele existir.
@@ -327,13 +385,11 @@ public:
      * @param k := chave a ser removida
      */
     bool remove(const Key& k) {
-        size_t slot = hash_code(k); // calcula o slot em que estaria a chave
-        for(auto it = m_table[slot].begin(); it != m_table[slot].end(); ++it) {
-            if(it->first == k) {
-                m_table[slot].erase(it); // se encontrar, deleta
-                m_number_of_elements--;
-                return true;
-            }
+        size_t slot = aux_hashSearch(k); // calcula o slot em que estaria a chave
+        if(slot != -1){    
+            m_table[slot]->status = Status::DELETED;
+            m_number_of_elements--;
+            return true;
         }
         return false; // se não encontrar, retorna falso
     }
@@ -396,15 +452,14 @@ public:
         if(load_factor() >= m_max_load_factor) {
             rehash(2 * m_table_size);
         }
-        size_t slot = hash_code(k);
-        for(auto& par : m_table[slot]) {
-            if(par.first == k) {
-                return par.second;
-            }
+        size_t i = aux_hashSearch(k);
+        if(i!= -1){
+            return m_table[i]->pair.second;
         }
-        m_table[slot].push_back({k, Value()});
-        m_number_of_elements++;
-        return m_table[slot].back().second;
+
+        add(k, Value());
+        i = aux_hashSearch(k);
+        return m_table[i]->pair.second;
     }
 
 
@@ -419,10 +474,8 @@ public:
      * @return Value& := valor associado a chave
      */
     const Value& operator[](const Key& k) const {
-        return at(k);
+        return hashSearch(k);
     }
-
 };
-
-
-#endif // END of CHAINED_HASHTABLE_HPP
+ 
+#endif
