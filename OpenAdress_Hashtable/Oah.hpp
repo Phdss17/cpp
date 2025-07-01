@@ -20,8 +20,18 @@
 #include <functional>
 
 /**
+* @brief Enum usado para a verificação de status.
+* 
+*/
+enum Status {
+    EMPTY,
+    ACTIVE,
+    DELETED
+};
+
+/**
  * @brief Classe que implementa uma tabela hash com tratamento de
- * colisao por endereçamento aberto (Open Adressing hash table).
+ * colisao por enderec  amento aberto (Open Adressing hash table).
  * 
  * Os tipos Key e Value, caso sejam classes, devem ter um construtor default. 
  * Além disso, o tipo Key deve sobrecarregar o operador de igualdade (==).
@@ -36,15 +46,6 @@ template <typename Key, typename Value = int, typename Hash = std::hash<Key>>
 class Oah{
     private:
 
-    /**
-    * @brief Enum usado para a verificação de status.
-    * 
-    */
-    enum class Status {
-    EMPTY,
-    ACTIVE,
-    DELETED
-    };
 
     /**
     * @brief Struct Node genérico.
@@ -60,7 +61,7 @@ class Oah{
         std::pair<Key, Value> pair;
         Status status;
 
-        Node(std::pair<Key, Value> pair, Status status = Status::EMPTY){
+        Node(std::pair<Key, Value> pair, Status status = EMPTY){
             this->pair = pair;
             this->status = status;
         }
@@ -168,11 +169,11 @@ class Oah{
         size_t j = 0;
         do{
             j = hash_code(key, i);
-            if(m_table[j]->status == Status::ACTIVE && m_table[j]->pair.first == key){
+            if(m_table[j]->status == ACTIVE && m_table[j]->pair.first == key){
                 return j;
             }
             i++;
-        }while(m_table[j]->status != Status::EMPTY && i < m_table_size);
+        }while(m_table[j]->status != EMPTY && i < m_table_size);
         return -1;
     }
 
@@ -251,7 +252,7 @@ class Oah{
      */
     void clear() {
         for(size_t i = 0; i < m_table_size; i++){
-            m_table[i]->status = Status::EMPTY;
+            m_table[i]->status = EMPTY;
         }
         m_number_of_elements = 0;
     }
@@ -294,9 +295,9 @@ class Oah{
         size_t j = 0;
         do{
             j = hash_code(k, i);
-            if(m_table[j]->status != Status::ACTIVE){
+            if(m_table[j]->status != ACTIVE){
                 m_table[j]->pair = {k, v};
-                m_table[j]->status = Status::ACTIVE;
+                m_table[j]->status = ACTIVE;
                 m_number_of_elements++;
                 return true;
             }
@@ -369,7 +370,7 @@ class Oah{
                 m_table[i] = new Node({Key(), Value()});
             }       
             for(Node* node : old_vec){
-                if(node->status == Status::ACTIVE){
+                if(node->status == ACTIVE){
                     add(node->pair.first, node->pair.second);
                 }
                 delete node;
@@ -387,7 +388,7 @@ class Oah{
     bool remove(const Key& k) {
         size_t slot = aux_hashSearch(k); // calcula o slot em que estaria a chave
         if(slot != -1){    
-            m_table[slot]->status = Status::DELETED;
+            m_table[slot]->status = DELETED;
             m_number_of_elements--;
             return true;
         }
@@ -480,7 +481,7 @@ class Oah{
     void show(){
         std::cout.precision(3);
         for(size_t i = 0; i < m_table_size; i++){
-            if(m_table[i]->status == Status::ACTIVE){
+            if(m_table[i]->status == ACTIVE){
                 std::cout << m_table[i]->pair.first << "/" << m_table[i]->pair.second << " ";
             }
         }

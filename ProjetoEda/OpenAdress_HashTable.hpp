@@ -1,5 +1,5 @@
 /**
- * @file Oah.hpp
+ * @file OpenAdress_HashTable.hpp
  * @author Paulo Henrique (phenriquedss@alu.ufc.br)
  * @brief Uma tabela hash com tratamento de colisao por endereçamento aberto
  * Estrutura de dados avancada - 2025.1
@@ -245,9 +245,7 @@ class OpenAdress_HashTable{
 
     /**
      * @brief Todos os pares de (chave,valor) da tabela hash sao deletados: 
-     * os destrutores das listas encadeadas sao chamados 
-     * e eles sao removidos da estrutura de dados, 
-     * deixando-o com zero pares na tabela (size() == 0).
+     * Todos os elementos recebem Status = EMPTY e a tabela recebe size = 0.
      */
     void clear() {
         for(size_t i = 0; i < m_table_size; i++){
