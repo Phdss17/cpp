@@ -35,6 +35,7 @@ public:
      *  
      */
     AvlTree(){
+        count = 0;
         _root = nullptr;
     }
     
@@ -120,8 +121,13 @@ public:
         std::cout << std::endl;
     }
 
-    std::vector<std::pair<Key, Value>> getAll(){
-        return _getAll();
+    /**
+     * @brief Retorna a quantidade de comparacoes de chave feitas na estrutura.
+     * 
+     * @return size_t := quantidade de comparacoes.
+     **/
+    size_t getComparisons(){
+        return count;
     }
 
 private:
@@ -150,7 +156,7 @@ private:
     };
     //Nó raiz e contador do tipo size_t para suportar tamanhos imensos.
     Node *_root;
-    size_t cont;
+    mutable size_t count;
 
     /**
      * @brief insert privado que caminha recursivamente pela arvore fazendo comparações com a chave e 
@@ -162,17 +168,20 @@ private:
      */
     Node* _insert(Node *node, Key k, Value v){
         if (node == nullptr){
-            return new Node(std::make_pair(k, v), nullptr, nullptr);
+            return new Node({k, v}, nullptr, nullptr);
         }
 
+        count++;
         if (node->pair.first == k){
-            node->pair.second++;
+            node->pair.second = v;
             return node;
         }
 
         if (k < node->pair.first){
+            count++;
             node->left = _insert(node->left, k, v);
         }else if (k > node->pair.first){
+            count += 2;
             node->right = _insert(node->right, k, v);
         }
         node = _fixupNode(node, k);
@@ -191,10 +200,13 @@ private:
             throw std::runtime_error("Key not found");
 
         if (node->pair.first == k){
+            count++;
             return node->pair;
         }else if (node->pair.first > k){
+            count += 2;
             return _get(node->left, k);
         }else{
+            count += 2;
             return _get(node->right, k);
         }
     }
@@ -228,15 +240,19 @@ private:
         if (node == nullptr)
             return nullptr;
 
-        if (key < node->pair.first)
+        if (key < node->pair.first){
+            count++;
             node->left = _remove(node->left, key);
-        else if (key > node->pair.first)
+        }else if (key > node->pair.first){
+            count += 2;
             node->right = _remove(node->right, key);
-        else if (node->right == nullptr){
+        }else if (node->right == nullptr){
+            count += 2;
             Node *child = node->left;
             delete node;
             return child;
         }else{
+            count += 2;
             node->right = remove_successor(node, node->right);
             node = fixup_deletion(node);
             return node;
@@ -312,10 +328,13 @@ private:
             return false;
 
         if (node->pair.first == k){
+            count++;
             return true;
         }else if (node->pair.first > k){
+            count += 2;
             return _contains(node->left, k);
         }else{
+            count += 2;
             return _contains(node->right, k);
         }
     }
@@ -403,19 +422,23 @@ private:
     Node *_fixupNode(Node *node, Key k){
         int bal = _balance(node);
 
+        count++;
         // Caso 1(a)
         if (bal == -2 && k < node->left->pair.first){
             return right_rotation(node);
         }
+        count++;
         // Caso 1(b)
         if (bal == -2 && k > node->left->pair.first){
             node->left = left_rotation(node->left);
             return right_rotation(node);
         }
+        count++;
         // Caso 2(a)
         if (bal == 2 && k > node->right->pair.first){
             return left_rotation(node);
         }
+        count++;
         // Caso 2(b)
         if (bal == 2 && k < node->right->pair.first){
             node->right = right_rotation(node->right);
@@ -441,23 +464,6 @@ private:
         _show(node->right);
     }
 
-    std::vector<std::pair<Key, Value>> _getAll(){
-        std::stack<Node*> pilha;
-        Node* node = _root;
-        std::vector<std::pair<Key, Value>> p;
-        pilha.push(_root);
-        while( !pilha.empty() || node != nullptr) {
-            if(node != nullptr){
-                pilha.push(node);
-                node = node->left;
-            }else{
-                node = pilha.top();
-                pilha.pop();
-                p.push_back(node->pair);
-            }
-        }
-        return p;
-    }
 };
 
 #endif //END of AVLTREE_HPP

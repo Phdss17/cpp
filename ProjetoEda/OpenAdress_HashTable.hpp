@@ -72,6 +72,7 @@ class OpenAdress_HashTable{
     // tamanho atual da tabela
     size_t m_table_size;
 
+    mutable size_t count;
 
     // O maior valor que o fator de carga pode ter. 
     // Seja load_factor = m_number_of_elements/m_table_size.
@@ -168,6 +169,7 @@ class OpenAdress_HashTable{
         size_t j = 0;
         do{
             j = hash_code(key, i);
+            count++;
             if(m_table[j]->status == Status::ACTIVE && m_table[j]->pair.first == key){
                 return j;
             }
@@ -184,6 +186,7 @@ class OpenAdress_HashTable{
      * @param tableSize := o numero de slots da tabela. 
      */
     OpenAdress_HashTable(size_t tableSize = 19, float load_factor = 1.0) {
+        count = 0;
         m_number_of_elements = 0;
         m_table_size = get_next_prime(tableSize);
         m_table.resize(m_table_size);
@@ -192,7 +195,6 @@ class OpenAdress_HashTable{
         } else {
             m_max_load_factor = load_factor;
         }
-
         for(size_t i = 0; i < m_table_size; i++){
             m_table[i] = (new Node({Key(), Value()}));
         }
@@ -473,6 +475,24 @@ class OpenAdress_HashTable{
      */
     const Value& operator[](const Key& k) const {
         return hashSearch(k);
+    }
+
+    void show(){
+        for(auto Node : m_table){
+            if(Node->status == Status::ACTIVE){
+                std::cout << Node->pair.first << "|" << Node->pair.second << " ";
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    /**
+     * @brief Retorna a quantidade de comparacoes de chave feitas na estrutura.
+     * 
+     * @return size_t := quantidade de comparacoes.
+     **/    
+    size_t getComparisons(){
+        return count;
     }
 };
  

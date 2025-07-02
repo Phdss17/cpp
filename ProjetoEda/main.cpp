@@ -7,6 +7,7 @@
 #include "AvlTree.hpp"
 #include "RbTree.hpp"
 #include "Chained_HashTable.hpp"
+#include "OpenAdress_HashTable.hpp"
 using namespace std; 
 
 int main(int argc, char* argv[]){

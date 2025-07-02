@@ -11,4 +11,7 @@ int main(){
     rb.insert("teste", 1000);
 
     rb.show();
+
+    Rb<float, char> rbb;
+    rbb.insert(12.3, 'a');
 }

@@ -36,6 +36,7 @@ public:
     * @brief Construtor padrão da classe, cria uma arvore rubro-negra vazia.
     */
     RbTree(){
+        count = 0;
         T_nil = new Node(BLACK, {Key(), Value()}, nullptr, nullptr, nullptr);
         T_nil->left = T_nil->right = T_nil;
         _root = T_nil;
@@ -83,7 +84,7 @@ public:
     * @param k := Chave a ser procurada.
     */
     bool contains(Key k){
-        return _contains(k);
+        return _contains(_root, k);
     }
 
     /**
@@ -104,6 +105,15 @@ public:
     void show(){
         _show(_root);
         std::cout << std::endl;
+    }
+
+    /**
+     * @brief Retorna a quantidade de comparacoes de chave feitas na estrutura.
+     * 
+     * @return size_t := quantidade de comparacoes.
+     **/    
+    size_t getComparisons(){
+        return count;
     }
 
 private:
@@ -136,7 +146,7 @@ private:
 
         Node *_root; //no rais da arvore
         Node *T_nil; //no T_nil
-
+        mutable size_t count; //contador de comparacoes
 
     /**
     * @brief Insere um novo par de chave e valor na arvore. 
@@ -153,10 +163,13 @@ private:
         while(x != T_nil){
             y = x;
             if(k < x->pair.first){
+                count++;
                 x = x->left;
             }else if(k > x->pair.first){
+                count += 2;
                 x = x->right;
             }else{
+                count += 2;
                 x->pair.second = v;
                 return;
             }
@@ -167,9 +180,11 @@ private:
             _root = z;
             insert_fixUp(z);
         }else if(k < y->pair.first){
+            count++;
             y->left = z;
             insert_fixUp(z);
         }else{
+            count++;
             y->right = z; 
             insert_fixUp(z);
         }
@@ -185,6 +200,7 @@ private:
     void _remove(Key k){
         Node* p = _root;
         while(p != T_nil && p->pair.first != k){
+            count += 2;
             if(k < p->pair.first){
                 p = p->left;
             }else{
@@ -230,7 +246,7 @@ private:
             node->pair = y->pair;
         }
         if(y->color == BLACK){
-            delete_fixUp(_root, x);
+            delete_fixUp(x);
         }
         delete y;
     }
@@ -262,10 +278,13 @@ private:
 
         while(node != T_nil){
             if(k < node->pair.first){
+                count++;
                 node = node->left;
             }else if(k > node->pair.first){
+                count += 2;
                 node = node->right;
             }else{
+                count += 2;
                 return true;
             }
         }
@@ -284,16 +303,6 @@ private:
         return _size(node->left) + _size(node->right) + 1;
     }
 
-
-    void _show(Node* node) const{
-        if (node == T_nil)
-            return;
-
-        _show(node->left);
-        std::cout << node->pair.first << "|" << node->pair.second << std::endl;
-        _show(node->right);
-    }
-
     /**
     * @brief Recebe um nodo e retorna seu menor descendente.
     * 
@@ -310,14 +319,8 @@ private:
     * @brief Funcao auxiliar que recebe um nodo e caso necessario realoca alguns elementos da tabela,
     * com a intencao de manter o balanceamento.
     * 
-    * 
-    * Enquanto a cor o no pai do node for RED, a funcao verifica se o pai do node e um filho esquerdo, 
-    * se for um aux recebe o no "tio" do node, se o tio tiver cor RED, node e seu pai sao coloridos de BLACK, 
-    * o avo do node eh colorido de RED e o node passa a guardar seu avo, caso o tio nao seja RED, a funcao verifica 
-    * se o node eh o filho esquerdo caso seja, node passa a guardar seu pai, e uma rotacao a esquerda e feita no node,
-    * depois da verificacao o pai do node recebe cor BLACK e o avo RED, entao e feita uma rotacao a direita no avo.
-    * Caso o pai de node nao seja inicialmente o filho esquerdo, o mesmo processo se repete de maneira espelhada.
-    * Por fim, o nodo raiz eh pintado de BLACK.
+    * Faz verificacoes de paternidade repetidas vezesa,
+    * de coloracao e modifica a arvore com base nos casos de debalanceamento.
     * 
     * @param node := no o qual vai receber possivel rebalanceamento.
     */   
@@ -364,17 +367,8 @@ private:
     * @brief Funcao auxiliar que recebe um nodo e caso necessario realoca alguns elementos da tabela,
     * com a intencao de manter o balanceamento.
     * 
-    * 
-    * Cria-se w referenciando T_nil, enquanto node for diferente da raiz e sua cor for nao for BLACK,
-    * verifica se o node eh um filho esquerdo, se for w recebe o irmao direito do node, entao a funcao verifica
-    * se a cor de w eh RED, se for o pinta de BLACK, pinta o pai de RED, faz um rotacao a esquerda no pai de node
-    * e guarda o irmao de node em w, entao se verifica se a cor dos filhos de w eh BLACK, se forem w eh colorido de RED
-    * e node passa a guardar seu pai, se nao verifica-se se a cor do filho direito de w eh BLACK, se for, o filho esquerdo
-    * eh colorido de BLACK, w eh colorido de RED e faz-se uma rotacao a esquerda no w,
-    * entao w eh colorido da mesma cor que o pai de node, o pai de node e o filho direito de w ganham cor BLACK, 
-    * eh feita uma rotacao a esquerda no pai do node e node passa a guardar a raiz.
-    * Caso o node nao seja o filho esquerdo, o mesmo processo eh feito de maneira simetrica.
-    * Por fim node eh colorido de BLACK.
+    * Faz verificacoes de paternidade repetidas vezesa,
+    * de coloracao e modifica a arvore com base nos casos de debalanceamento.
     * 
     * @param node := no o qual vai receber possivel rebalanceamento.
     */    
@@ -435,12 +429,7 @@ private:
     /**
     * @brief Funcao auxiliar que recebe um no e faz uma rotacao a esquerda usando ele de pivo.
     * 
-    * Cria-se um no auxiliar y e atribui a ele o filho direito do node, entao o filho direito recebe o esquerdo,
-    * se o filho da esquerda de y for diferente de T_nil, node se torna pai do filho esquerdo de y, 
-    * o pai de y passa a ser o pai do node, entao se o pai do node for T_nil, y se torna o no raiz, se nao,
-    *  se o node for um filho esquerdo, y se torna o filho esquerdo o pai do node, se nao, y vira irmao de node.
-    * entao node vira filho esquerdo de y e y vira pai de node.
-    * 
+    * Faz verificacoes de "existencia" de nodo e faz atribuicoes de ponteiro.
     * 
     * @param node := no pivo da rotacao
     */
@@ -465,12 +454,7 @@ private:
     /**
     * @brief Funcao auxiliar que recebe um no e faz uma rotacao a direita usando ele de pivo.
     * 
-    * Cria-se um no auxiliar y e atribui a ele o filho esquerdo do node, entao o filho esquerdo recebe o direito,
-    * se o filho da direita de y for diferente de T_nil, node se torna pai do filho direito de y, 
-    * o pai de y passa a ser o pai do node, entao se o pai do node for T_nil, y se torna o no raiz, se nao,
-    * se o node for um filho direito, y se torna o filho direito o pai do node, se nao, y vira irmao de node.
-    * entao node vira filho direito de y e y vira pai de node.
-    * 
+    * Faz verificacoes de "existencia" de nodo e faz atribuicoes de ponteiro.
     * 
     * @param node := no pivo da rotacao
     */
@@ -490,6 +474,20 @@ private:
         }
         y->right = node;
         node->parent = y;
+    }
+
+    /**
+     * @brief Recebe um nó e a partir dele imprime os campos chave e valor do nó.
+     * 
+     * @param node := nó a partir do qual se deseja mostrar na árvore.
+     **/
+    void _show(Node *node) const{
+        if (node == T_nil)
+            return;
+
+        _show(node->left);
+        std::cout << node->pair.first << "|" << node->pair.second << std::endl;
+        _show(node->right);
     }
 
 };

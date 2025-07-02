@@ -19,7 +19,6 @@
 #include <vector>
 #include <utility>
 #include <functional>
-#include "AvlTree.hpp"
 
 /**
  * @brief Classe que implementa uma tabela hash com tratamento de
@@ -55,6 +54,9 @@ private:
 
     // referencia para a funcao de codificacao
     Hash m_hashing;
+
+    // contador de comparacoes
+    mutable size_t count;
 
     /**
      * @brief Retorna o menor numero primo que eh maior que ou igual
@@ -104,6 +106,7 @@ public:
      */
     Chained_HashTable(size_t tableSize = 19, float load_factor = 1.0) {
         m_number_of_elements = 0;
+        count = 0;
         m_table_size = get_next_prime(tableSize);
         m_table.resize(m_table_size);
         if(load_factor <= 0) {
@@ -223,8 +226,9 @@ public:
         }
         size_t slot = hash_code(k);
         for(auto& p : m_table[slot]) {
+            count++;
             if(p.first == k) {
-               p.second++;
+               p.second = v;
                 return false;
             }
         }
@@ -244,6 +248,7 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
+            count++;
             if(p.first == k) {
                 return true;
             }
@@ -264,6 +269,7 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
+            count++;
             if(p.first == k) {
                 return p.second;
             }
@@ -275,6 +281,7 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
+            count++;
             if(p.first == k) {
                 return p.second;
             }
@@ -326,6 +333,7 @@ public:
     bool remove(const Key& k) {
         size_t slot = hash_code(k); // calcula o slot em que estaria a chave
         for(auto it = m_table[slot].begin(); it != m_table[slot].end(); ++it) {
+            count++;
             if(it->first == k) {
                 m_table[slot].erase(it); // se encontrar, deleta
                 m_number_of_elements--;
@@ -395,6 +403,7 @@ public:
         }
         size_t slot = hash_code(k);
         for(auto& par : m_table[slot]) {
+            count++;
             if(par.first == k) {
                 return par.second;
             }
@@ -419,18 +428,30 @@ public:
         return at(k);
     }
 
+    /**
+     * @brief Imprime os elementos de cada slot da tabela. 
+     * 
+     */    
     const void show(){
-        AvlTree<Key, Value> avt;
-
         for(int i = 0; i < m_table_size; i++){
-            for(auto& p : m_table[i]){
-                avt.insert(p.first, p.second);
+            for(auto p : m_table[i]){
+                std::cout << p.first << "|" << p.second << " "; 
+            }
+            if(!m_table[i].empty()){
+                std::cout << std::endl;
             }
         }
-        avt.show();
+    }
+
+    /**
+     * @brief Retorna a quantidade de comparacoes de chave feitas na estrutura.
+     * 
+     * @return size_t := quantidade de comparacoes.
+     **/    
+    size_t getComparisons(){
+        return count;
     }
 
 };
-
 
 #endif // END of CHAINED_HASHTABLE_HPP

@@ -255,6 +255,24 @@ private:
         std::cout << node->pair.first << "|" << node->pair.second << std::endl;
         _show(node->right);
     }
+
+    std::vector<std::pair<Key, Value>> _getAll(){
+        std::stack<Node*> pilha;
+        Node* node = _root;
+        std::vector<std::pair<Key, Value>> p;
+        pilha.push(_root);
+        while( !pilha.empty() || node != nullptr) {
+            if(node != nullptr){
+                pilha.push(node);
+                node = node->left;
+            }else{
+                node = pilha.top();
+                pilha.pop();
+                p.push_back(node->pair);
+            }
+        }
+        return p;
+    }
 };
 
 #endif
