@@ -250,6 +250,7 @@ class OpenAdress_HashTable{
      * Todos os elementos recebem Status = EMPTY e a tabela recebe size = 0.
      */
     void clear() {
+        count = 0;
         for(size_t i = 0; i < m_table_size; i++){
             m_table[i]->status = Status::EMPTY;
         }

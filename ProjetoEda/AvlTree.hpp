@@ -73,6 +73,7 @@ public:
      * 
      */
     void clear(){
+        count = 0;
         _root = _clear(_root);
     }
 
@@ -177,11 +178,10 @@ private:
             return node;
         }
 
+        count++;
         if (k < node->pair.first){
-            count++;
             node->left = _insert(node->left, k, v);
-        }else if (k > node->pair.first){
-            count += 2;
+        }else{
             node->right = _insert(node->right, k, v);
         }
         node = _fixupNode(node, k);
@@ -422,27 +422,34 @@ private:
     Node *_fixupNode(Node *node, Key k){
         int bal = _balance(node);
 
-        count++;
-        // Caso 1(a)
-        if (bal == -2 && k < node->left->pair.first){
-            return right_rotation(node);
+        if (bal == -2){
+            // Caso 1(a)
+            count++;
+            if(k < node->left->pair.first){
+                return right_rotation(node);
+            }
+            
+            // Caso 1(b)
+            count++;
+            if(k > node->left->pair.first){
+                node->left = left_rotation(node->left);
+                return right_rotation(node);
+            }
         }
-        count++;
-        // Caso 1(b)
-        if (bal == -2 && k > node->left->pair.first){
-            node->left = left_rotation(node->left);
-            return right_rotation(node);
-        }
-        count++;
-        // Caso 2(a)
-        if (bal == 2 && k > node->right->pair.first){
-            return left_rotation(node);
-        }
-        count++;
-        // Caso 2(b)
-        if (bal == 2 && k < node->right->pair.first){
-            node->right = right_rotation(node->right);
-            return left_rotation(node);
+        
+        if (bal == 2){
+            // Caso 2(a)
+            count++;
+            if(k > node->right->pair.first){
+                return left_rotation(node);
+            }
+
+            // Caso 2(b)
+            count++;
+            if (k < node->right->pair.first){
+                node->right = right_rotation(node->right);
+                return left_rotation(node);
+            }
         }
 
         // Caso node balanceado

@@ -3,6 +3,8 @@
 #include "RbTree.hpp"
 #include "Chained_HashTable.hpp"
 #include "OpenAdress_HashTable.hpp"
+#include <vector>
+#include <utility>
 
 using namespace std;
 
@@ -26,24 +28,7 @@ int main(){
     rb.show();
     cout << "comparacoes: "<< rb.getComparisons() << "\n\n";
 
-    AvlTree<string, int> avl;
-
-    cout << "TESTES AVL" << endl;
-    avl.insert("ph", 1);
-    avl.insert("atilio", 10);
-    avl.insert("eda", 7);  
-    avl.insert("teste", 3);
-    avl.insert("avl", -13);
-    avl.insert("biblia", 100);
-    avl.insert("biblia", 1000);
-
-    avl.show();
-    avl.erase("ph");
-    avl.erase("teste");
-
-    avl.show();
-    cout << "comparacoes: "<< avl.getComparisons() << "\n\n";
-
+    
     cout << "TESTES CHAINED" << endl;
     Chained_HashTable<string, float> cht(19, 0.75);
 
@@ -85,4 +70,20 @@ int main(){
     oah.show();
     cout << "\n" << "comparacoes: "<< oah.getComparisons() << "\n";
 
+    AvlTree<string, int> avl;
+    cout << "TESTES AVL" << endl;
+    avl.insert("ph", 1);
+    avl.insert("atilio", 10);
+    avl.insert("eda", 7);  
+    avl.insert("teste", 3);
+    avl.insert("avl", -13);
+    avl.insert("biblia", 100);
+    avl.insert("biblia", 1000);
+
+    avl.show();
+    avl.erase("ph");
+    avl.erase("teste");
+
+    avl.show();
+    cout << "comparacoes: "<< avl.getComparisons() << "\n\n";
 }

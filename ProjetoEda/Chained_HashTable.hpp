@@ -194,6 +194,7 @@ public:
      * deixando-o com zero pares na tabela (size() == 0).
      */
     void clear() {
+        count = 0;
         for(size_t i = 0; i < m_table_size; ++i) {
             m_table[i].clear();
         }

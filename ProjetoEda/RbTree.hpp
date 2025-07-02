@@ -55,6 +55,7 @@ public:
     * @brief Deleta cada um dos elementos da estrutura.
     */
     void clear(){
+        count = 0;
         _clear(_root);
     }
 
