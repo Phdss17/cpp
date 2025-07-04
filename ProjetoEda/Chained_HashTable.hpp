@@ -56,7 +56,9 @@ private:
     Hash m_hashing;
 
     // contador de comparacoes
-    mutable size_t count;
+    mutable size_t compare_count;
+    // contador de colisoes
+    mutable size_t collide_count;
 
     /**
      * @brief Retorna o menor numero primo que eh maior que ou igual
@@ -106,7 +108,8 @@ public:
      */
     Chained_HashTable(size_t tableSize = 19, float load_factor = 1.0) {
         m_number_of_elements = 0;
-        count = 0;
+        compare_count = 0;
+        collide_count = 0;
         m_table_size = get_next_prime(tableSize);
         m_table.resize(m_table_size);
         if(load_factor <= 0) {
@@ -194,7 +197,8 @@ public:
      * deixando-o com zero pares na tabela (size() == 0).
      */
     void clear() {
-        count = 0;
+        compare_count = 0;
+        collide_count = 0;
         for(size_t i = 0; i < m_table_size; ++i) {
             m_table[i].clear();
         }
@@ -227,7 +231,8 @@ public:
         }
         size_t slot = hash_code(k);
         for(auto& p : m_table[slot]) {
-            count++;
+            compare_count++;
+            collide_count++;
             if(p.first == k) {
                p.second = v;
                 return false;
@@ -249,7 +254,7 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
-            count++;
+            compare_count++;
             if(p.first == k) {
                 return true;
             }
@@ -270,7 +275,6 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
-            count++;
             if(p.first == k) {
                 return p.second;
             }
@@ -282,7 +286,6 @@ public:
         size_t slot = hash_code(k);
 
         for(auto& p : m_table[slot]) {
-            count++;
             if(p.first == k) {
                 return p.second;
             }
@@ -334,7 +337,7 @@ public:
     bool remove(const Key& k) {
         size_t slot = hash_code(k); // calcula o slot em que estaria a chave
         for(auto it = m_table[slot].begin(); it != m_table[slot].end(); ++it) {
-            count++;
+            compare_count++;
             if(it->first == k) {
                 m_table[slot].erase(it); // se encontrar, deleta
                 m_number_of_elements--;
@@ -404,7 +407,7 @@ public:
         }
         size_t slot = hash_code(k);
         for(auto& par : m_table[slot]) {
-            count++;
+            compare_count++;
             if(par.first == k) {
                 return par.second;
             }
@@ -450,7 +453,16 @@ public:
      * @return size_t := quantidade de comparacoes.
      **/    
     size_t getComparisons(){
-        return count;
+        return compare_count;
+    }
+
+    /**
+     * @brief Retorna a quantidade de colisoes na estrutura.
+     * 
+     * @return size_t := quantidade de colisoes.
+     **/    
+    size_t getCollisions(){
+        return collide_count;
     }
 
 };

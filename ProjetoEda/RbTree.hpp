@@ -36,7 +36,8 @@ public:
     * @brief Construtor padrão da classe, cria uma arvore rubro-negra vazia.
     */
     RbTree(){
-        count = 0;
+        compare_count = 0;
+        rotate_count = 0;
         T_nil = new Node(BLACK, {Key(), Value()}, nullptr, nullptr, nullptr);
         T_nil->left = T_nil->right = T_nil;
         _root = T_nil;
@@ -55,8 +56,10 @@ public:
     * @brief Deleta cada um dos elementos da estrutura.
     */
     void clear(){
-        count = 0;
+        compare_count = 0;
+        rotate_count = 0;
         _clear(_root);
+        _root = T_nil;
     }
 
     /**
@@ -114,7 +117,16 @@ public:
      * @return size_t := quantidade de comparacoes.
      **/    
     size_t getComparisons(){
-        return count;
+        return compare_count;
+    }
+
+    /**
+     * @brief Retorna a quantidade de rotacoes feitas na estrutura.
+     * 
+     * @return size_t := quantidade de rotacoes.
+     **/    
+    size_t getRotation(){
+        return rotate_count;
     }
 
 private:
@@ -147,7 +159,8 @@ private:
 
         Node *_root; //no rais da arvore
         Node *T_nil; //no T_nil
-        mutable size_t count; //contador de comparacoes
+        mutable size_t compare_count; //contador de comparacoes
+        mutable size_t rotate_count; //contador de comparacoes
 
     /**
     * @brief Insere um novo par de chave e valor na arvore. 
@@ -164,13 +177,13 @@ private:
         while(x != T_nil){
             y = x;
             if(k < x->pair.first){
-                count++;
+                compare_count++;
                 x = x->left;
             }else if(k > x->pair.first){
-                count += 2;
+                compare_count += 2;
                 x = x->right;
             }else{
-                count += 2;
+                compare_count += 2;
                 x->pair.second = v;
                 return;
             }
@@ -181,14 +194,13 @@ private:
             _root = z;
             insert_fixUp(z);
         }else if(k < y->pair.first){
-            count++;
             y->left = z;
             insert_fixUp(z);
         }else{
-            count++;
             y->right = z; 
             insert_fixUp(z);
         }
+        compare_count++;
     }
 
     /**
@@ -201,7 +213,7 @@ private:
     void _remove(Key k){
         Node* p = _root;
         while(p != T_nil && p->pair.first != k){
-            count += 2;
+            compare_count += 2;
             if(k < p->pair.first){
                 p = p->left;
             }else{
@@ -279,13 +291,13 @@ private:
 
         while(node != T_nil){
             if(k < node->pair.first){
-                count++;
+                compare_count++;
                 node = node->left;
             }else if(k > node->pair.first){
-                count += 2;
+                compare_count += 2;
                 node = node->right;
             }else{
-                count += 2;
+                compare_count += 2;
                 return true;
             }
         }
@@ -435,6 +447,7 @@ private:
     * @param node := no pivo da rotacao
     */
     void left_rotate(Node* node){
+        rotate_count++;
         Node* y = node->right;
         node->right = y->left;
         if(y->left != T_nil){
@@ -460,6 +473,7 @@ private:
     * @param node := no pivo da rotacao
     */
     void right_rotate(Node* node){
+        rotate_count++;
         Node* y = node->left;
         node->left = y->right;
         if(y->right != T_nil){

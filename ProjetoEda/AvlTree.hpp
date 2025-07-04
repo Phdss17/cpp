@@ -35,7 +35,8 @@ public:
      *  
      */
     AvlTree(){
-        count = 0;
+        compare_count = 0;
+        rotate_count = 0;
         _root = nullptr;
     }
     
@@ -73,7 +74,8 @@ public:
      * 
      */
     void clear(){
-        count = 0;
+        compare_count = 0;
+        rotate_count = 0;
         _root = _clear(_root);
     }
 
@@ -128,8 +130,18 @@ public:
      * @return size_t := quantidade de comparacoes.
      **/
     size_t getComparisons(){
-        return count;
+        return compare_count;
     }
+
+
+    /**
+     * @brief Retorna a quantidade de rotacoes feitas na estrutura.
+     * 
+     * @return size_t := quantidade de rotacoes.
+     **/    
+    size_t getRotation(){
+        return rotate_count;
+    }    
 
 private:
     /**
@@ -155,9 +167,10 @@ private:
             this->height = Altura;
         }
     };
-    //Nó raiz e contador do tipo size_t para suportar tamanhos imensos.
+    //Nó raiz e contadores do tipo size_t para suportar tamanhos imensos.
     Node *_root;
-    mutable size_t count;
+    mutable size_t compare_count;
+    mutable size_t rotate_count;
 
     /**
      * @brief insert privado que caminha recursivamente pela arvore fazendo comparações com a chave e 
@@ -172,13 +185,13 @@ private:
             return new Node({k, v}, nullptr, nullptr);
         }
 
-        count++;
+        compare_count++;
         if (node->pair.first == k){
             node->pair.second = v;
             return node;
         }
 
-        count++;
+        compare_count++;
         if (k < node->pair.first){
             node->left = _insert(node->left, k, v);
         }else{
@@ -200,13 +213,13 @@ private:
             throw std::runtime_error("Key not found");
 
         if (node->pair.first == k){
-            count++;
+            compare_count++;
             return node->pair;
         }else if (node->pair.first > k){
-            count += 2;
+            compare_count += 2;
             return _get(node->left, k);
         }else{
-            count += 2;
+            compare_count += 2;
             return _get(node->right, k);
         }
     }
@@ -241,18 +254,18 @@ private:
             return nullptr;
 
         if (key < node->pair.first){
-            count++;
+            compare_count++;
             node->left = _remove(node->left, key);
         }else if (key > node->pair.first){
-            count += 2;
+            compare_count += 2;
             node->right = _remove(node->right, key);
         }else if (node->right == nullptr){
-            count += 2;
+            compare_count += 2;
             Node *child = node->left;
             delete node;
             return child;
         }else{
-            count += 2;
+            compare_count += 2;
             node->right = remove_successor(node, node->right);
             node = fixup_deletion(node);
             return node;
@@ -266,7 +279,7 @@ private:
      * @brief Recebe um nó root e um nó node.
      *  Se o nó a esquerda do node for diferente de nullptr, chama recursivamente a função,
      *  atribui ao node->left e chama fixUp deletion e retorna o node.
-     *  Se não atribui a chave do node a chave da raiz, guarda o node->right em um aux, 
+     *  Se não atribui o par do node ao par da raiz, guarda o node->right em um aux, 
      *  então deleta o node e retorna o aux. 
      * 
      * @param _root := nó o qual vai ser removido.
@@ -278,7 +291,7 @@ private:
             node = fixup_deletion(node);
             return node;
         }else{
-            root -> pair.first = node -> pair.first;
+            root -> pair = node -> pair;
             Node * aux = node -> right;
             delete node;
             return aux;
@@ -328,13 +341,13 @@ private:
             return false;
 
         if (node->pair.first == k){
-            count++;
+            compare_count++;
             return true;
         }else if (node->pair.first > k){
-            count += 2;
+            compare_count += 2;
             return _contains(node->left, k);
         }else{
-            count += 2;
+            compare_count += 2;
             return _contains(node->right, k);
         }
     }
@@ -376,6 +389,7 @@ private:
      * @param node := nó pivô da rotação.
      **/
     Node *right_rotation(Node *node){
+        rotate_count++;
         Node *aux = node->left;
         node->left = aux->right;
         aux->right = node;
@@ -393,6 +407,7 @@ private:
      * @param node := nó pivô da rotação.
      **/
     Node *left_rotation(Node *node){
+        rotate_count++;
         Node *aux = node->right;
         node->right = aux->left;
         aux->left = node;
@@ -424,13 +439,13 @@ private:
 
         if (bal == -2){
             // Caso 1(a)
-            count++;
+            compare_count++;
             if(k < node->left->pair.first){
                 return right_rotation(node);
             }
             
             // Caso 1(b)
-            count++;
+            compare_count++;
             if(k > node->left->pair.first){
                 node->left = left_rotation(node->left);
                 return right_rotation(node);
@@ -439,13 +454,13 @@ private:
         
         if (bal == 2){
             // Caso 2(a)
-            count++;
+            compare_count++;
             if(k > node->right->pair.first){
                 return left_rotation(node);
             }
 
             // Caso 2(b)
-            count++;
+            compare_count++;
             if (k < node->right->pair.first){
                 node->right = right_rotation(node->right);
                 return left_rotation(node);
@@ -470,6 +485,8 @@ private:
         std::cout << node->pair.first << "|" << node->pair.second << std::endl;
         _show(node->right);
     }
+
+
 
 };
 

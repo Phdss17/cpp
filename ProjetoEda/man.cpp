@@ -9,6 +9,24 @@
 using namespace std;
 
 int main(){
+    AvlTree<string, int> avl;
+    cout << "TESTES AVL" << endl;
+    avl.insert("ph", 1);
+    avl.insert("atilio", 10);
+    avl.insert("eda", 7);  
+    avl.insert("teste", 3);
+    avl.insert("avl", -13);
+    avl.insert("biblia", 100);
+    avl.insert("biblia", 1000);
+
+    avl.show();
+    avl.erase("ph");
+    avl.erase("teste");
+
+    avl.show();
+    cout << "comparacoes: "<< avl.getComparisons() << "\n";
+    cout << "rotacoes: "<< avl.getRotation() << "\n\n";
+
     cout << "TESTES RUBRO-NEGRA" << endl;
     RbTree<float, char> rb;
     rb.insert(9.5, 'a');
@@ -26,11 +44,12 @@ int main(){
     rb.remove(2.3);
 
     rb.show();
-    cout << "comparacoes: "<< rb.getComparisons() << "\n\n";
+    cout << "comparacoes: "<< rb.getComparisons() << "\n";
+    cout << "rotacoes: "<< rb.getRotation() << "\n\n";
 
     
     cout << "TESTES CHAINED" << endl;
-    Chained_HashTable<string, float> cht(19, 0.75);
+    Chained_HashTable<string, float> cht(7, 0.75);
 
     cht.add("abra", 9.13);
     cht.add("kadabra", 3.14);
@@ -48,10 +67,11 @@ int main(){
     cht.remove("dante");
 
     cht.show();
-    cout << "comparacoes: "<< cht.getComparisons() << "\n\n";
+    cout << "comparacoes: "<< cht.getComparisons() << "\n";
+    cout << "colisoes: "<< cht.getCollisions() <<"\n\n";
 
     cout << "TESTES OPEN" << endl;
-    OpenAdress_HashTable<char, int> oah(19, 0.5);
+    OpenAdress_HashTable<char, int> oah(7, 0.5);
 
     oah.add('a', 1);
     oah.add('z', 26);
@@ -69,21 +89,5 @@ int main(){
 
     oah.show();
     cout << "\n" << "comparacoes: "<< oah.getComparisons() << "\n";
-
-    AvlTree<string, int> avl;
-    cout << "TESTES AVL" << endl;
-    avl.insert("ph", 1);
-    avl.insert("atilio", 10);
-    avl.insert("eda", 7);  
-    avl.insert("teste", 3);
-    avl.insert("avl", -13);
-    avl.insert("biblia", 100);
-    avl.insert("biblia", 1000);
-
-    avl.show();
-    avl.erase("ph");
-    avl.erase("teste");
-
-    avl.show();
-    cout << "comparacoes: "<< avl.getComparisons() << "\n\n";
+    cout << "colisoes: "<< oah.getCollisions() << "\n\n";
 }

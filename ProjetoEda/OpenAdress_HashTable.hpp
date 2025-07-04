@@ -72,7 +72,8 @@ class OpenAdress_HashTable{
     // tamanho atual da tabela
     size_t m_table_size;
 
-    mutable size_t count;
+    mutable size_t compare_count; //contador de comparacoes
+    mutable size_t collide_count; //contador de colisoes
 
     // O maior valor que o fator de carga pode ter. 
     // Seja load_factor = m_number_of_elements/m_table_size.
@@ -169,7 +170,7 @@ class OpenAdress_HashTable{
         size_t j = 0;
         do{
             j = hash_code(key, i);
-            count++;
+            compare_count++;
             if(m_table[j]->status == Status::ACTIVE && m_table[j]->pair.first == key){
                 return j;
             }
@@ -186,7 +187,8 @@ class OpenAdress_HashTable{
      * @param tableSize := o numero de slots da tabela. 
      */
     OpenAdress_HashTable(size_t tableSize = 19, float load_factor = 1.0) {
-        count = 0;
+        compare_count = 0;
+        collide_count = 0;
         m_number_of_elements = 0;
         m_table_size = get_next_prime(tableSize);
         m_table.resize(m_table_size);
@@ -250,7 +252,8 @@ class OpenAdress_HashTable{
      * Todos os elementos recebem Status = EMPTY e a tabela recebe size = 0.
      */
     void clear() {
-        count = 0;
+        compare_count = 0;
+        collide_count = 0;
         for(size_t i = 0; i < m_table_size; i++){
             m_table[i]->status = Status::EMPTY;
         }
@@ -301,6 +304,7 @@ class OpenAdress_HashTable{
                 m_number_of_elements++;
                 return true;
             }
+            collide_count++;
             i++; 
         }while(i < m_table_size);
         return false;
@@ -493,8 +497,17 @@ class OpenAdress_HashTable{
      * @return size_t := quantidade de comparacoes.
      **/    
     size_t getComparisons(){
-        return count;
+        return compare_count;
     }
+
+    /**
+     * @brief Retorna a quantidade de colisoes na estrutura.
+     * 
+     * @return size_t := quantidade de colisoes.
+     **/    
+    size_t getCollisions(){
+        return collide_count;
+    }    
 };
  
 #endif
