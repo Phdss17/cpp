@@ -139,7 +139,7 @@ void Pq<T, Comparator>::decreaseKey(int i, int newKey) {
 template <typename T, typename Comparator>
 void Pq<T, Comparator>::fixUp(int index) {
     while(index != 1 && compara(m_vec[index/2],m_vec[index])) {        
-       Kaux = m_vec[index];
+        T aux = m_vec[index];
         m_vec[index] = m_vec[index/2];
         m_vec[index/2] = aux;
         index = index/2;
